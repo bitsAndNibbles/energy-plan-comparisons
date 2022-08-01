@@ -1,0 +1,124 @@
+﻿<MetroControls:MetroWindow
+    x:Class="Shaw.Srp.View.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Shaw.Srp.View"
+    xmlns:MetroControls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    mc:Ignorable="d"
+    GlowBrush="{DynamicResource AccentColorBrush}"
+    Title="SRP Plan Comparison"
+    Height="580" Width="500">
+
+    <MetroControls:MetroWindow.Resources>
+        <ResourceDictionary>
+            
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <!-- Accent and AppTheme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="NumberCellStyle" TargetType="DataGridCell">
+                <Setter Property="TextBlock.TextAlignment" Value="Right"/>
+            </Style>
+
+            <Style x:Key="ParameterListTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Margin" Value="18,5,0,0"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            
+        </ResourceDictionary>
+    </MetroControls:MetroWindow.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Button
+            Content="Load Hourly Data File..."
+            Command="{Binding LoadFileCommand}"
+            Padding="6"
+            Margin="10"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"/>
+
+        <TextBlock
+            Grid.Row="1"
+            Text="{Binding DataFilePath, FallbackValue=(no file loaded)}"
+            TextWrapping="Wrap"
+            Margin="24,3,20,10"
+            VerticalAlignment="Center"/>
+        
+        <Border Grid.Row="2" Margin="5">
+            <StackPanel Orientation="Vertical">
+                <TextBlock
+                    Text="Parameters and assumptions:"/>
+                <TextBlock
+                    Style="{StaticResource ParameterListTextBlockStyle}"
+                    Text="Bill cycles begin on 1st day of month."/>
+                <TextBlock
+                    Style="{StaticResource ParameterListTextBlockStyle}"
+                    Text="The calculations ignore partial first/last month data."/>
+                <TextBlock
+                    Style="{StaticResource ParameterListTextBlockStyle}"
+                    Text="Actual costs for plans utilizing a 30-minute Demand Rate formula, such as E-27P, are greater than what is displayed. This is due to underestimating in the app's calculation, since half-hour data isn't available for export from SRP."/>
+                <TextBlock
+                    Style="{StaticResource ParameterListTextBlockStyle}">
+                    <Span>
+                        <Run>The data file is an hourly report that includes at least one full month, exported from </Run>
+                        <Hyperlink NavigateUri="https://myaccount.srpnet.com/MyAccount/Usage">srpnet.com</Hyperlink>
+                        <Run> in this format: Usage Date,Hour,kWh,Cost</Run>
+                    </Span>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+        
+        <TextBlock
+            Grid.Row="3"
+            Margin="5,18,5,10"
+            TextWrapping="Wrap">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="{}Using data from {0} through {1}.">
+                    <Binding Path="EntriesStart" FallbackValue="n/a" />
+                    <Binding Path="EntriesEnd" FallbackValue="n/a" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+        
+        <DataGrid
+            Grid.Row="4"
+            ItemsSource="{Binding Plans}"
+            AutoGenerateColumns="False"
+            GridLinesVisibility="Horizontal"
+            Margin="0,10,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding PlanName, Mode=OneWay}" Header="Plan Name"/>
+                <DataGridTextColumn
+                    SortMemberPath="TotalCost"
+                    Header="Total Cost"
+                    Binding="{Binding TotalCost, Mode=OneWay, StringFormat={}{0:#.00}}"
+                    CellStyle="{StaticResource NumberCellStyle}">
+                </DataGridTextColumn>
+                <DataGridTextColumn
+                    SortMemberPath="AnnualTotalCost"
+                    Header="Annualized Cost"
+                    Binding="{Binding AnnualTotalCost, Mode=OneWay, StringFormat={}{0:#.00}}"
+                    CellStyle="{StaticResource NumberCellStyle}">
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        
+    </Grid>
+
+</MetroControls:MetroWindow>
